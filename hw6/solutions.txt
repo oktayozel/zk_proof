@@ -1,0 +1,31 @@
+CS595 Homework 6 - Written Part
+Oktay Ozel - oozel@bu.edu
+
+
+Problem 1. (15 points)
+A student named Stu is implementing the mixer from this assignment. He notices that
+anyone can see the commitments of all deposits by looking at the blockchain. Since all the
+commitments are public, anyone can compute a Merkle path from each commitment to the
+root. Stu reasons that because all paths can be computed by anyone, he can make the path
+in the withdraw.nr zero-knowledge proof be a public input. What is the problem with
+Stu’s scheme?
+
+
+Stu is wrong here. making the merkle path a public input  breaks anonymity.
+Commitments are visible on-chain so anyone can see which deposit each commitment came from.
+The merkle path reveals exactly which leaf is being accessed in the withdrawal.
+By matching the public path to the publicly known commitments any observer can match
+the withdrawal to its corresponding deposit, which is against the whole purpose of a mixer.
+The path must be private so nobody can tell which deposit is being withdrawn.
+
+
+Problem 2. (15 points)
+Stu has another idea. Instead of making the Merkle path in the withdrawal zeroknowledge proof public, he just removes it from the zero-knowledge proof entirely. He writes
+a withdraw.nr function that takes in r and c as a private input, id as a public input, and
+checks that PedersenHash(id, r) = c. What is the problem with this scheme?
+
+Without the Merkle path there is no proof that the commitment c is actually in the tree.
+Anyone could pick two random values for id and r, and then compute PedersenHash(id, r) and try to withdraw it.
+The proof would pass since it only checks the hash computation not the tree membership, which means attackers
+could drain the contract by making withdrawals for deposits that never happened.
+The Merkle path is critical here to prove that the commitment exists in the tree.
